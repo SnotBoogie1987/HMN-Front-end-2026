@@ -1,24 +1,12 @@
 # Human Creative - Repository Handoff Documentation
 
-## Quick Start for Deploying to human-creative.co.uk
-
-**STOP!** Before deploying to production, you MUST:
-1. ✅ Fix all image paths (local file:/// URLs will NOT work)
-2. ✅ Test on mobile devices
-3. ✅ Verify email addresses work (studio@human-creative.co.uk)
-4. ✅ Optimize images for web
-5. ✅ Add SEO meta tags
-
-See [Pre-Deployment Checklist](#pre-deployment-checklist-critical-for-production) below for complete list.
-
----
-
 ## Project Overview
 
 **Human Creative** is a crew agency website for freelance filmmakers, formerly a production company established in 2018. The website showcases their mission to provide exceptional talent while prioritizing freelancer welfare and sustainable working conditions in the filmmaking industry.
 
-**Production Domain**: human-creative.co.uk  
-**Purpose**: This codebase is intended to update the current front-end of the live production website.
+**Target Domain**: human-creative.co.uk  
+**Current Status**: Development/Integration Phase  
+**Purpose**: These front-end pages are being integrated into a current development project. This is NOT yet being deployed to the live production website.
 
 ### Company Mission
 - Provide curated crew solutions with exceptional talent
@@ -43,13 +31,26 @@ See [Pre-Deployment Checklist](#pre-deployment-checklist-critical-for-production
 - **Vanilla JavaScript** - Minimal JavaScript for configuration
 - **Node.js** - For build scripts (work page generation)
 
+### Design System (IMPORTANT)
+
+**📐 All design and styling MUST be sourced from:**
+1. **`design_config.js`** - TailwindCSS configuration (colors, fonts, spacing)
+2. **`style.css`** - Custom CSS (animations, text strokes, component styles)
+
+**DO NOT add inline styles or one-off CSS classes.** All styling should be:
+- Defined in `design_config.js` for Tailwind utilities
+- Defined in `style.css` for custom styles
+- Applied using existing classes in HTML
+
+This ensures consistency across the entire site and makes maintenance easier.
+
 ### Fonts
 - **Anton** - Display font for headlines
 - **Inter** - Sans-serif for body text
 - **Space Mono** - Monospace font
 - **Azeret Mono** - Monospace for navigation and marquee text
 
-### Color Palette
+### Color Palette (Defined in design_config.js)
 - **Primary (Acid Lime)**: `#D2F865`
 - **Background Light**: `#F5F5F5`
 - **Background Dark**: `#000000`
@@ -192,59 +193,237 @@ This generates HTML files in the `work/` directory based on the project list. To
 
 ## Customization Guide
 
+### 🎨 Design System Rules
+
+**CRITICAL: All styling changes MUST go through the design system:**
+
+1. **For color, font, or spacing changes** → Edit `design_config.js`
+2. **For animations, effects, or component styles** → Edit `style.css`
+3. **Never add inline styles** or style attributes in HTML
+4. **Never add one-off CSS classes** directly in HTML files
+
 ### Modifying Colors
 
-Edit `design_config.js`:
+**Always edit `design_config.js`** (NOT individual HTML files):
 ```javascript
-colors: {
-    primary: "#D2F865",        // Change accent color
-    "background-light": "#F5F5F5",  // Light mode background
-    "background-dark": "#000000",   // Dark mode background
+tailwind.config = {
+    darkMode: "class",
+    theme: {
+        extend: {
+            colors: {
+                primary: "#D2F865",              // Acid Lime accent
+                "background-light": "#F5F5F5",   // Light mode background
+                "background-dark": "#000000",    // Dark mode background
+                "dark-surface": "#000000",
+            },
+            // ... rest of config
+        },
+    },
+};
+```
+
+**To change the brand color:** Change `primary: "#D2F865"` to your new color, and it will update across the entire site automatically.
+
+### Modifying Typography
+
+**Edit `design_config.js`** to change fonts:
+```javascript
+fontFamily: {
+    display: ["'Anton'", "sans-serif"],     // Headlines
+    sans: ["'Inter'", "sans-serif"],        // Body text
+    mono: ["'Space Mono'", "monospace"],    // Code/mono
+},
+```
+
+**Edit `style.css`** for component-specific typography:
+```css
+/* Navigation Links */
+.nav-link-style {
+    font-family: 'azeret-mono-v2', 'Azeret Mono', monospace;
+    font-size: 17.1224px;
+    line-height: 20.5469px;
+    /* ... */
 }
 ```
 
-### Adding Navigation Items
+### Modifying Spacing
 
-Update the navigation section in each HTML file:
-```html
-<a href="newpage.html" class="text-primary nav-link-style shrink-0">NEW PAGE</a>
+**Edit `design_config.js`** to add new spacing values:
+```javascript
+spacing: {
+    '128': '32rem',  // Add custom spacing values here
+    '144': '36rem',
+}
 ```
+
+Then use in HTML: `<div class="mt-128">...</div>`
 
 ### Customizing Animations
 
-The marquee animation is defined in `style.css`:
+**All animations are defined in `style.css`:**
+
 ```css
+/* Marquee Animation */
 @keyframes marquee {
     0% { transform: translateX(0); }
     100% { transform: translateX(-20%); }
 }
 .animate-marquee {
-    animation: marquee 64s linear infinite;
+    animation: marquee 64s linear infinite;  /* Adjust 64s to change speed */
 }
 ```
 
-Adjust the duration (64s) to speed up or slow down the marquee.
+### Adding New Reusable Styles
+
+**For new component styles, add to `style.css`:**
+
+```css
+/* Example: Adding a new button style */
+.btn-primary {
+    background-color: #D2F865;
+    color: #000000;
+    padding: 1rem 2rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #c4e955;
+}
+```
+
+Then use in HTML: `<button class="btn-primary">Click Me</button>`
+
+### Adding Navigation Items
+
+**Update the navigation section in each HTML file**, using existing style classes:
+```html
+<a href="newpage.html" class="text-primary nav-link-style shrink-0">NEW PAGE</a>
+<div class="w-[243px] shrink-0"></div>  <!-- Spacer, keep consistent -->
+```
+
+### Design System Workflow
+
+**When you need to add styling:**
+
+1. **Check if a Tailwind utility exists** → Use it (e.g., `bg-black`, `text-white`)
+2. **Check if a custom class exists in style.css** → Use it (e.g., `nav-link-style`)
+3. **If neither exist:**
+   - For colors/fonts/spacing → Add to `design_config.js`
+   - For effects/animations/components → Add to `style.css`
+   - Apply the new class in HTML
+
+**DO NOT:**
+- ❌ Add `style="..."` attributes in HTML
+- ❌ Create one-off classes for single elements
+- ❌ Duplicate existing styles
+- ❌ Use arbitrary values when a design token exists
 
 ## Key Components
 
-### 1. Animated Marquee
+### Design System Files (SOURCE OF TRUTH)
+
+#### 1. design_config.js
+**Purpose:** Central configuration for TailwindCSS  
+**Controls:** Colors, fonts, spacing, breakpoints
+
+```javascript
+tailwind.config = {
+    darkMode: "class",
+    theme: {
+        extend: {
+            colors: {
+                primary: "#D2F865",              // All primary color usage
+                "background-light": "#F5F5F5",   // Light backgrounds
+                "background-dark": "#000000",    // Dark backgrounds
+                "dark-surface": "#000000",
+            },
+            fontFamily: {
+                display: ["'Anton'", "sans-serif"],
+                sans: ["'Inter'", "sans-serif"],
+                mono: ["'Space Mono'", "monospace"],
+            },
+            spacing: {
+                '128': '32rem',
+            }
+        },
+    },
+};
+```
+
+**When to edit:**
+- Changing brand colors
+- Adding new color variants
+- Modifying font families
+- Adding custom spacing values
+- Adjusting responsive breakpoints
+
+#### 2. style.css
+**Purpose:** Custom styles not covered by Tailwind  
+**Contains:** Animations, text effects, component-specific styles
+
+```css
+/* Text Stroke Effects */
+.text-stroke-lime { ... }
+.text-stroke-black { ... }
+
+/* Animations */
+@keyframes marquee { ... }
+.animate-marquee { ... }
+
+/* Component Styles */
+span.SflwFl.tCj5mo.wixui-text-marquee__text { ... }
+.nav-link-style { ... }
+```
+
+**When to edit:**
+- Creating new animations
+- Adding text effects (stroke, shadow)
+- Defining component-specific styles
+- Custom hover/focus states
+- Complex selectors not possible in Tailwind
+
+### How These Files Work Together
+
+```
+HTML Files
+    ↓
+design_config.js → TailwindCSS Classes (bg-primary, font-display, etc.)
+    ↓
+style.css → Custom Classes (nav-link-style, animate-marquee, etc.)
+    ↓
+Final Rendered Styles
+```
+
+**Example in Practice:**
+```html
+<!-- Uses both design system files -->
+<a href="work.html" class="text-primary nav-link-style shrink-0">
+    <!--                   ^                ^
+                           |                |
+                   design_config.js    style.css  -->
+    WORK
+</a>
+```
+
+### 2. Animated Marquee
 - Located in header section
 - Scrolls partner acknowledgments
 - Infinite loop animation
 - Customizable speed in `style.css`
 
-### 2. Navigation Bar
+### 3. Navigation Bar
 - Fixed width elements for precise spacing
 - Acid lime (#D2F865) color for links
 - Black background with white/primary text
 - Responsive considerations needed for mobile
 
-### 3. Dark/Light Theme
+### 4. Dark/Light Theme
 - Uses Tailwind's `dark:` prefix
 - Supports `bg-background-light` and `bg-background-dark`
 - Manual toggle implementation would be needed
 
-### 4. Typography
+### 5. Typography
 - Display headlines: Anton font
 - Body text: Inter font
 - Code/mono: Space Mono, Azeret Mono
@@ -305,13 +484,93 @@ Adjust the duration (64s) to speed up or slow down the marquee.
 
 ## Deployment Considerations
 
-### Production Domain: human-creative.co.uk
+### Current Status: Development/Integration
 
-This codebase is designed to replace/update the current front-end at **human-creative.co.uk**.
+**This codebase is currently being integrated into a development project** and is NOT yet ready for production deployment to human-creative.co.uk.
 
-### Deployment Options
+### Integration into Existing Project
 
-#### Option 1: Traditional Web Hosting (Current Setup)
+When integrating these pages into your development project:
+
+1. **Preserve the Design System**
+   - Keep `design_config.js` and `style.css` as the source of truth
+   - Integrate these files into your build process
+   - Ensure all pages reference these files correctly
+
+2. **Adapt File Paths**
+   - Update paths based on your project structure
+   - Ensure consistency across all pages
+   - Update asset paths to match your project's assets directory
+
+3. **Merge with Existing Styles**
+   - If you have existing styles, carefully merge with `style.css`
+   - Ensure no class name conflicts
+   - Maintain the design tokens in `design_config.js`
+
+4. **Update Dependencies**
+   - If your project uses npm/package.json, consider installing TailwindCSS locally instead of CDN
+   - Install font packages if needed
+   - Consider adding build tools (PostCSS, etc.)
+
+### Development Workflow
+
+```bash
+# Clone into your development project
+git clone https://github.com/SnotBoogie1987/HMN-Front-end-2026.git
+
+# Or add as submodule
+git submodule add https://github.com/SnotBoogie1987/HMN-Front-end-2026.git frontend
+
+# Copy files to your project structure
+cp -r HMN-Front-end-2026/* your-project/frontend/
+```
+
+### Integrating with Modern Build Tools
+
+If your development project uses a build system:
+
+#### With Vite
+```javascript
+// vite.config.js
+import { defineConfig } from 'vite'
+
+export default defineConfig({
+  root: './frontend',
+  publicDir: 'assets',
+})
+```
+
+#### With Webpack
+```javascript
+// webpack.config.js
+module.exports = {
+  entry: './frontend/index.html',
+  output: {
+    path: path.resolve(__dirname, 'dist'),
+  },
+}
+```
+
+#### Installing TailwindCSS Locally (Recommended for Development)
+```bash
+npm install -D tailwindcss
+npx tailwindcss init
+
+# Create tailwind.config.js from design_config.js content
+# Replace CDN script in HTML with compiled CSS
+```
+
+### Future Production Deployment
+
+When ready to deploy to human-creative.co.uk:
+
+### Future Production Deployment
+
+When ready to deploy to human-creative.co.uk:
+
+#### Deployment Options
+
+#### Option 1: Traditional Web Hosting
 If human-creative.co.uk is currently on traditional hosting (cPanel, etc.):
 1. **Backup Current Site**
    - Download all existing files from the server
@@ -353,9 +612,9 @@ netlify deploy --prod --dir=.
 - Add Cloudflare in front for caching and CDN
 - Configure DNS through Cloudflare
 
-### Pre-Deployment Checklist (CRITICAL for Production)
+### Pre-Deployment Checklist (For Future Production Release)
 
-#### Must-Fix Issues
+#### Must-Fix Issues Before Production
 - [x] **CRITICAL**: Replace all local file paths with proper URLs
   - Logo: `file:///C:/Users/Scott/.gemini/...` → `/assets/logo.png`
   - Work images need proper paths

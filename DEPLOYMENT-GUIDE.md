@@ -1,10 +1,264 @@
-# Deployment Guide for human-creative.co.uk
+# Integration & Deployment Guide
 
-## 🚨 CRITICAL: Read This Before Deploying
+## 📋 Current Status: Development Integration
 
-This guide provides step-by-step instructions for deploying this codebase to **human-creative.co.uk**.
+**This codebase is being integrated into a current development project.**  
+This is NOT yet being deployed to the live human-creative.co.uk website.
 
-## Step 1: Fix Broken Image Paths (REQUIRED)
+## 🔧 Integration into Your Development Project
+
+### Step 1: Clone or Copy the Files
+
+**Option A: Clone the repository**
+```bash
+cd /path/to/your/development/project
+git clone https://github.com/SnotBoogie1987/HMN-Front-end-2026.git frontend
+```
+
+**Option B: Add as Git Submodule**
+```bash
+cd /path/to/your/development/project
+git submodule add https://github.com/SnotBoogie1987/HMN-Front-end-2026.git frontend
+git submodule update --init --recursive
+```
+
+**Option C: Copy files directly**
+```bash
+cp -r /path/to/HMN-Front-end-2026/* /path/to/your/project/frontend/
+```
+
+### Step 2: Integrate Design System Files
+
+**Preserve these files as your design source of truth:**
+- ✅ `design_config.js` - Tailwind configuration
+- ✅ `style.css` - Custom styles and animations
+
+**Integration approaches:**
+
+**If using TailwindCSS CDN (Simple):**
+```html
+<!-- Keep in all HTML files -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<script src="design_config.js"></script>
+<link rel="stylesheet" href="style.css">
+```
+
+**If using local TailwindCSS (Recommended for development):**
+```bash
+# Install TailwindCSS
+npm install -D tailwindcss postcss autoprefixer
+npx tailwindcss init
+
+# Convert design_config.js to tailwind.config.js
+```
+
+**tailwind.config.js:**
+```javascript
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+    darkMode: "class",
+    content: [
+        "./frontend/**/*.html",
+        "./frontend/**/*.js",
+    ],
+    theme: {
+        extend: {
+            colors: {
+                primary: "#D2F865",
+                "background-light": "#F5F5F5",
+                "background-dark": "#000000",
+                "dark-surface": "#000000",
+            },
+            fontFamily: {
+                display: ["'Anton'", "sans-serif"],
+                sans: ["'Inter'", "sans-serif"],
+                mono: ["'Space Mono'", "monospace"],
+            },
+            spacing: {
+                '128': '32rem',
+            }
+        },
+    },
+    plugins: [
+        require('@tailwindcss/forms'),
+        require('@tailwindcss/typography'),
+    ],
+}
+```
+
+### Step 3: Update File Paths
+
+Adjust paths based on your project structure:
+
+```html
+<!-- Example: If design system is in /src/styles/ -->
+<link rel="stylesheet" href="/src/styles/style.css">
+<script src="/src/config/design_config.js"></script>
+
+<!-- Update asset paths -->
+<img src="/assets/logo.png" alt="HUMAN.">
+```
+
+### Step 4: Set Up Development Server
+
+**Option A: Simple Python Server**
+```bash
+cd frontend
+python -m http.server 8000
+# Visit http://localhost:8000
+```
+
+**Option B: With Live Reload (using live-server)**
+```bash
+npm install -g live-server
+cd frontend
+live-server
+```
+
+**Option C: Integrate with your existing dev server**
+```javascript
+// Example with Express.js
+app.use('/frontend', express.static('path/to/frontend'));
+```
+
+### Step 5: Test in Development Environment
+
+- [ ] All pages load correctly
+- [ ] Design system files are referenced properly
+- [ ] Images display (or note which are placeholder paths)
+- [ ] Navigation works between pages
+- [ ] Styles apply correctly from design_config.js and style.css
+
+## 🎨 Working with the Design System
+
+**Important:** All styling changes must go through:
+- **`design_config.js`** (or `tailwind.config.js`) for Tailwind utilities
+- **`style.css`** for custom styles
+
+**DO NOT add inline styles or one-off CSS classes in HTML files.**
+
+### Making Style Changes
+
+```javascript
+// design_config.js - Change brand color
+colors: {
+    primary: "#NEW_COLOR",  // Updates throughout entire site
+}
+```
+
+```css
+/* style.css - Modify animations */
+@keyframes marquee {
+    /* Adjust timing, distance, etc. */
+}
+```
+
+## 📝 Current Development Tasks
+
+### High Priority (Fix During Development)
+
+1. **Image Path Issues**
+   - Status: ⚠️ Many images use local file:/// paths
+   - Action: Replace with proper paths for your project
+   - Files affected: All HTML files
+   
+2. **Work Page Content**
+   - Status: 🚧 Placeholder content
+   - Action: Add actual project descriptions and images
+   - Files: `work/*.html`
+
+3. **Mobile Responsiveness**
+   - Status: ⚠️ Navigation uses fixed widths
+   - Action: Test and adjust for mobile devices
+   - Files: All HTML navigation sections
+
+### Medium Priority
+
+4. **Form Functionality**
+   - Status: 📋 Needs backend integration
+   - File: `enquire.html`
+   - Action: Integrate with your backend or use service (Formspre, etc.)
+
+5. **Shop Page**
+   - Status: 🚧 Placeholder
+   - File: `shop.html`
+   - Action: Decide to remove or implement e-commerce
+
+### Optional Enhancements
+
+6. **Convert to Component System**
+   - Consider breaking into reusable components
+   - React, Vue, or Web Components
+   - Maintain design system as source of truth
+
+7. **Add Build Process**
+   - PostCSS for processing Tailwind
+   - Image optimization pipeline
+   - Minification for production
+
+## 🔄 Syncing with Repository Updates
+
+If you used git clone or submodule:
+
+```bash
+# Pull latest changes
+cd frontend
+git pull origin main
+
+# Or for submodule
+git submodule update --remote
+```
+
+## 🧪 Testing Checklist
+
+### Development Testing
+- [ ] All pages render correctly
+- [ ] Design system files load properly
+- [ ] Navigation between pages works
+- [ ] Fonts load from Google Fonts CDN
+- [ ] Marquee animation runs smoothly
+- [ ] Dark/light theme classes work (if implemented)
+
+### Browser Testing
+- [ ] Chrome/Edge (Chromium)
+- [ ] Firefox
+- [ ] Safari (if on Mac)
+
+### Device Testing
+- [ ] Desktop (1920x1080 and larger)
+- [ ] Laptop (1366x768)
+- [ ] Tablet (iPad: 768x1024)
+- [ ] Mobile (375x667, 414x896)
+
+## 📦 When Ready for Production
+
+When your development is complete and ready for human-creative.co.uk:
+
+1. **Fix all critical issues**
+   - Image paths
+   - Mobile responsiveness
+   - Form functionality
+   - SEO meta tags
+
+2. **Optimize for production**
+   - Compress images
+   - Minify CSS/JS
+   - Add caching headers
+   - Test performance
+
+3. **Follow production deployment guide**
+   - See "Future Production Deployment" section in HANDOFF.md
+   - Backup existing site
+   - Deploy to staging first
+   - Test thoroughly before going live
+
+## 🚀 Future: Production Deployment to human-creative.co.uk
+
+**⚠️ The following is for FUTURE production deployment only ⚠️**
+
+---
+
+## Step 1: Fix Broken Image Paths (REQUIRED BEFORE PRODUCTION)
 
 ### Problem
 The site currently has hardcoded local file paths that will NOT work on the live website:
