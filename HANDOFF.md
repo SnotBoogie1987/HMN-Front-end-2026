@@ -1,8 +1,24 @@
 # Human Creative - Repository Handoff Documentation
 
+## Quick Start for Deploying to human-creative.co.uk
+
+**STOP!** Before deploying to production, you MUST:
+1. ✅ Fix all image paths (local file:/// URLs will NOT work)
+2. ✅ Test on mobile devices
+3. ✅ Verify email addresses work (studio@human-creative.co.uk)
+4. ✅ Optimize images for web
+5. ✅ Add SEO meta tags
+
+See [Pre-Deployment Checklist](#pre-deployment-checklist-critical-for-production) below for complete list.
+
+---
+
 ## Project Overview
 
 **Human Creative** is a crew agency website for freelance filmmakers, formerly a production company established in 2018. The website showcases their mission to provide exceptional talent while prioritizing freelancer welfare and sustainable working conditions in the filmmaking industry.
+
+**Production Domain**: human-creative.co.uk  
+**Purpose**: This codebase is intended to update the current front-end of the live production website.
 
 ### Company Mission
 - Provide curated crew solutions with exceptional talent
@@ -236,62 +252,206 @@ Adjust the duration (64s) to speed up or slow down the marquee.
 
 ## Current Issues & Known Limitations
 
-### 1. Image Paths
-- Several images use local file paths:
+### 1. Image Paths (CRITICAL - MUST FIX BEFORE DEPLOYMENT)
+- Several images use local file paths that will NOT work on the live website:
   ```html
   file:///C:/Users/Scott/.gemini/antigravity/brain/...
   ```
-- **Action Required**: Replace with proper relative or CDN paths
-- Affects: Logo images, work thumbnails, and decorative images
+- **Impact**: Images will be broken on human-creative.co.uk
+- **Action Required**: 
+  1. Locate actual image files
+  2. Move to `assets/` directory with proper names (e.g., `logo.png`)
+  3. Replace all references with relative paths (e.g., `/assets/logo.png` or `assets/logo.png`)
+- **Affects**: 
+  - Logo images in navigation (all pages)
+  - Work thumbnails on work.html
+  - Decorative images on manifesto.html
+  
+**Files to update:**
+- `index.html` (line 32)
+- `manifesto.html` (line 32, 75, 76)
+- `work.html` (line 32)
+- `impact.html` (line 32, 70)
+- `enquire.html` (check for similar issues)
+- `shop.html` (check for similar issues)
+- All files in `work/` directory (line 37)
 
 ### 2. Work Pages
 - Currently placeholder pages with "under construction" message
-- Need actual content, images, and project details
+- Need actual content, images, and project details before launching to human-creative.co.uk
+- Consider priority: which projects to complete first
 
 ### 3. Shop Page
 - Likely a placeholder
-- E-commerce functionality needs to be implemented
+- Decide if this should be removed or implemented before launch
+- If keeping, integrate e-commerce solution (Shopify, WooCommerce, etc.)
 
 ### 4. Responsive Design
-- Navigation has fixed widths that may not work well on mobile
-- Consider implementing responsive breakpoints
-- Test on various screen sizes
+- Navigation has fixed widths (129px, 243px, 264px) that may not work well on mobile
+- **Action Required**: Test on mobile devices and adjust for human-creative.co.uk launch
+- Consider implementing responsive breakpoints or hamburger menu
+- Test on various screen sizes (mobile, tablet, desktop)
 
 ### 5. External Dependencies
-- TailwindCSS loaded from CDN (ensure availability)
+- TailwindCSS loaded from CDN (ensure availability and version stability)
 - Google Fonts loaded from CDN
-- No offline fallback
+- No offline fallback - consider implications for human-creative.co.uk
+- **Recommendation**: Consider self-hosting critical CSS/fonts for better reliability
+
+### 6. Email Configuration
+- Enquiry links point to `studio@human-creative.co.uk`
+- **Action Required**: Verify this email exists and is monitored
+- Test email sending if there are forms
 
 ## Deployment Considerations
 
-### Static Hosting
-This is a static website and can be hosted on:
-- **GitHub Pages** (recommended for this repo)
-- **Netlify**
-- **Vercel**
-- **AWS S3 + CloudFront**
-- **Traditional web hosting**
+### Production Domain: human-creative.co.uk
 
-### Pre-Deployment Checklist
-- [ ] Replace all local file paths with proper URLs
-- [ ] Optimize images (compress, use WebP format)
-- [ ] Add meta tags for SEO
-- [ ] Add Open Graph tags for social sharing
-- [ ] Test all links
-- [ ] Verify responsive design on mobile devices
-- [ ] Add favicon
-- [ ] Test performance with Lighthouse
-- [ ] Set up analytics (if needed)
-- [ ] Configure custom domain (if applicable)
+This codebase is designed to replace/update the current front-end at **human-creative.co.uk**.
 
-### GitHub Pages Deployment
+### Deployment Options
+
+#### Option 1: Traditional Web Hosting (Current Setup)
+If human-creative.co.uk is currently on traditional hosting (cPanel, etc.):
+1. **Backup Current Site**
+   - Download all existing files from the server
+   - Export any databases (if applicable)
+   - Document current configuration
+
+2. **Upload via FTP/SFTP**
+   ```bash
+   # Use an FTP client (FileZilla, Cyberduck, etc.)
+   # Or use command line:
+   sftp user@human-creative.co.uk
+   put -r /path/to/HMN-Front-end-2026/*
+   ```
+
+3. **Verify Files**
+   - Ensure all HTML, CSS, JS files are uploaded
+   - Verify `assets/` directory is complete
+   - Check file permissions (typically 644 for files, 755 for directories)
+
+#### Option 2: Modern Static Hosting
+Alternative hosting options for improved performance:
+- **Netlify** (recommended - free tier, automatic deployments)
+- **Vercel** (excellent performance, free tier)
+- **Cloudflare Pages** (fast CDN, free tier)
+- **GitHub Pages** (free, but requires public repo or GitHub Pro)
+
+**Netlify Deployment Example:**
 ```bash
-# Push to main branch
-git push origin main
+# Install Netlify CLI
+npm install -g netlify-cli
 
-# Enable GitHub Pages in repository settings
-# Settings > Pages > Source: main branch > / (root)
+# Login and deploy
+netlify login
+netlify deploy --prod --dir=.
 ```
+
+#### Option 3: Keep Current Hosting, Use CDN
+- Upload to existing host
+- Add Cloudflare in front for caching and CDN
+- Configure DNS through Cloudflare
+
+### Pre-Deployment Checklist (CRITICAL for Production)
+
+#### Must-Fix Issues
+- [x] **CRITICAL**: Replace all local file paths with proper URLs
+  - Logo: `file:///C:/Users/Scott/.gemini/...` → `/assets/logo.png`
+  - Work images need proper paths
+  - Decorative images need proper paths
+  
+- [ ] **HIGH**: Optimize all images
+  - Compress PNG files (use TinyPNG or similar)
+  - Convert to WebP where supported
+  - Add fallbacks for older browsers
+
+- [ ] **HIGH**: Test all email links
+  - Verify `mailto:studio@human-creative.co.uk` works
+  - Test enquiry form functionality
+
+#### SEO & Performance
+- [ ] Add meta descriptions to all pages
+- [ ] Add Open Graph tags for social media sharing
+- [ ] Create and upload favicon.ico
+- [ ] Add robots.txt file
+- [ ] Create sitemap.xml
+- [ ] Test page load speed with Google PageSpeed Insights
+- [ ] Implement lazy loading for images below the fold
+- [ ] Add Google Analytics or alternative (if needed)
+
+#### Browser & Device Testing
+- [ ] Test on Chrome, Firefox, Safari, Edge
+- [ ] Test on mobile devices (iOS, Android)
+- [ ] Test on tablet sizes
+- [ ] Verify responsive navigation works
+- [ ] Check all links (use broken link checker)
+
+#### Domain & SSL
+- [ ] Ensure SSL certificate is active for human-creative.co.uk
+- [ ] Verify HTTPS redirects work (HTTP → HTTPS)
+- [ ] Test www.human-creative.co.uk redirects to human-creative.co.uk (or vice versa)
+- [ ] Check DNS settings are correct
+
+#### Content Verification
+- [ ] Review all text for typos and accuracy
+- [ ] Verify company information is current
+- [ ] Confirm partner logos are up to date
+- [ ] Check contact email addresses work
+- [ ] Test enquiry form submissions
+
+### Deployment Steps for human-creative.co.uk
+
+1. **Backup Current Site**
+   ```bash
+   # SSH into server and create backup
+   tar -czf human-creative-backup-$(date +%Y%m%d).tar.gz /path/to/current/site
+   ```
+
+2. **Fix Critical Issues**
+   - Replace all local file paths
+   - Add missing images to `assets/` directory
+   - Update image references in HTML
+
+3. **Test Locally**
+   ```bash
+   # Run local server
+   python -m http.server 8000
+   # Test thoroughly at http://localhost:8000
+   ```
+
+4. **Stage Deployment (Recommended)**
+   - Deploy to subdomain first: `staging.human-creative.co.uk` or `beta.human-creative.co.uk`
+   - Test thoroughly in staging environment
+   - Get stakeholder approval
+
+5. **Production Deployment**
+   - Upload files to production server
+   - Test immediately after deployment
+   - Monitor for issues in first 24 hours
+
+6. **Post-Deployment**
+   - Submit sitemap to Google Search Console
+   - Update any external links pointing to the site
+   - Monitor analytics for traffic patterns
+   - Check server logs for errors
+
+### DNS Configuration
+Ensure DNS is pointing to the correct hosting:
+```
+A Record: @ → [Your Server IP]
+CNAME: www → human-creative.co.uk
+```
+
+### Rollback Plan
+If issues occur after deployment:
+```bash
+# Restore from backup
+tar -xzf human-creative-backup-YYYYMMDD.tar.gz
+# Move files back to web root
+```
+
+Keep the backup for at least 30 days after successful deployment.
 
 ## Browser Support
 
@@ -341,48 +501,94 @@ git push origin main
 ## Future Enhancements
 
 ### Recommended Improvements
+
+### Before Launch to human-creative.co.uk
+
+**CRITICAL (Must fix before going live):**
 1. **Fix Image Paths**
-   - Priority: HIGH
-   - Move images to `assets/` directory
+   - Priority: CRITICAL
+   - All local file:/// paths must be replaced
+   - Move images to proper locations in repository
    - Update all image references
 
-2. **Complete Work Pages**
+2. **Mobile Optimization**
+   - Test navigation on mobile devices
+   - Redesign navigation for small screens
+   - Add hamburger menu for mobile
+   - Test all pages on iPhone, Android devices
+
+3. **Email & Forms**
+   - Verify studio@human-creative.co.uk email works
+   - Test all mailto: links
+   - If enquire.html has a form, ensure it submits correctly
+   - Set up form handling (backend or service like Formspree)
+
+**HIGH PRIORITY:**
+4. **Complete Work Pages**
+   - Decide which projects to showcase first
    - Add project descriptions
    - Include project images/videos
    - Add client testimonials
+   - OR hide/remove until ready
 
-3. **Mobile Optimization**
-   - Redesign navigation for mobile
-   - Test and adjust layouts for small screens
-   - Add hamburger menu
-
-4. **SEO Optimization**
-   - Add meta descriptions
-   - Implement schema markup
+5. **SEO Optimization**
+   - Add meta descriptions to all pages
+   - Implement schema markup for business information
    - Create sitemap.xml
    - Add robots.txt
+   - Set up Google Search Console
 
-5. **Performance**
+6. **Performance**
+   - Optimize all images (compress, use WebP)
    - Implement lazy loading for images
-   - Add service worker for offline functionality
+   - Test with Google PageSpeed Insights
    - Optimize CSS delivery
+   - Add browser caching headers
 
-6. **Accessibility**
-   - Add ARIA labels
-   - Ensure keyboard navigation
+**MEDIUM PRIORITY:**
+7. **Accessibility**
+   - Add ARIA labels where needed
+   - Ensure keyboard navigation works
    - Test with screen readers
    - Improve color contrast where needed
+   - Add alt text to all images
 
-7. **Interactive Features**
+8. **Analytics & Tracking**
+   - Add Google Analytics or alternative
+   - Set up conversion tracking
+   - Monitor user behavior
+   - Track enquiry form submissions
+
+### After Launch
+
+9. **Interactive Features**
    - Add form validation to enquire.html
-   - Implement dark mode toggle
+   - Implement dark mode toggle (if desired)
    - Add smooth scroll animations
    - Consider adding a blog/news section
 
-8. **E-commerce**
-   - Implement shop functionality
-   - Add payment gateway integration
-   - Create product pages
+10. **E-commerce**
+    - If shop is needed, implement shop functionality
+    - Add payment gateway integration
+    - Create product pages
+    - Set up inventory management
+
+11. **Content Management**
+    - Consider adding a CMS (WordPress headless, Contentful, etc.)
+    - Make it easier to update work portfolio
+    - Enable non-technical staff to update content
+
+### Migration from Current Site
+
+**Planning Checklist:**
+- [ ] Audit current human-creative.co.uk content
+- [ ] Identify pages/content not in new design
+- [ ] Plan redirects for any changed URLs
+- [ ] Set up 301 redirects for moved/renamed pages
+- [ ] Update any external links to the site
+- [ ] Inform partners/clients of site update
+- [ ] Monitor search rankings during transition
+- [ ] Keep old site backup accessible for reference
 
 ## Quick Reference Commands
 
