@@ -7,31 +7,52 @@
 
 ## 📌 Current Status
 
-**Development/Integration Phase** - These front-end pages are being integrated into a current development project. This is NOT yet deployed to the live human-creative.co.uk website.
+**Development/Integration Phase** - These static HTML pages are being converted and integrated into a **Next.js + Supabase** project. This is NOT yet deployed to the live human-creative.co.uk website.
+
+**Target Stack:**
+- Next.js (React framework)
+- Supabase (Backend - auth, database, storage)
+- TailwindCSS (Styling)
 
 ## 📚 Documentation
 
 This repository contains comprehensive documentation:
 
 - **[README.md](README.md)** - This file - Quick overview and getting started
-- **[HANDOFF.md](HANDOFF.md)** - Complete technical documentation, architecture, and maintenance guide  
-- **[DEPLOYMENT-GUIDE.md](DEPLOYMENT-GUIDE.md)** - Integration guide for development + future production deployment steps
+- **[HANDOFF.md](HANDOFF.md)** - Complete technical documentation + **Next.js Migration Guide**
+- **[DEPLOYMENT-GUIDE.md](DEPLOYMENT-GUIDE.md)** - **Next.js + Supabase integration guide** + future production deployment
 
 ## 🚀 Quick Start
 
-### For Development Integration
+### For Next.js Integration (Primary Use Case)
 
+This static HTML site needs to be converted to Next.js components. See the comprehensive guide:
+
+📖 **[Next.js Migration Guide in HANDOFF.md](HANDOFF.md#nextjs-migration-guide)**
+
+**Quick overview:**
 ```bash
-# Clone into your development project
-git clone https://github.com/SnotBoogie1987/HMN-Front-end-2026.git frontend
+# 1. Set up Next.js project
+npx create-next-app@latest human-creative --typescript --tailwind --app
+cd human-creative
 
-# Or add as submodule
-git submodule add https://github.com/SnotBoogie1987/HMN-Front-end-2026.git frontend
+# 2. Install Supabase
+npm install @supabase/supabase-js
+
+# 3. Clone this repo for reference
+git clone https://github.com/SnotBoogie1987/HMN-Front-end-2026.git reference-design
+
+# 4. Follow the migration guide in HANDOFF.md
 ```
 
-See [DEPLOYMENT-GUIDE.md](DEPLOYMENT-GUIDE.md) for detailed integration instructions.
+Key tasks:
+- Convert `design_config.js` → `tailwind.config.js`
+- Migrate `style.css` → `app/globals.css`
+- Convert HTML pages → React/Next.js components
+- Set up Supabase for data and images
+- Use Next.js Image optimization
 
-### Viewing Locally
+### For Static HTML Preview (Reference Only)
 
 ```bash
 # Clone the repository
@@ -85,10 +106,17 @@ Key tasks before production:
 
 ## 🛠️ Tech Stack
 
-- **HTML5** - Semantic markup
-- **TailwindCSS** (CDN) - Utility-first CSS framework
-- **Vanilla JavaScript** - Minimal JS for configuration
-- **Node.js** - Build scripts
+### Current (Static HTML)
+- HTML5 - Semantic markup
+- TailwindCSS (CDN) - Utility-first CSS
+- Vanilla JavaScript - Minimal configuration
+
+### Target (Next.js Project)
+- **Next.js 14+** - React framework
+- **Supabase** - Backend (auth, database, storage)
+- **TailwindCSS** - Utility-first CSS (locally installed)
+- **TypeScript** - Type safety (recommended)
+- **next/font** - Optimized font loading
 
 ## 🎯 Key Features
 
@@ -163,17 +191,47 @@ See [HANDOFF.md](HANDOFF.md#current-issues--known-limitations) for complete list
 
 ## 🔧 Development Tasks
 
-### Current Sprint
-- [ ] Integrate pages into development project
-- [ ] Update image paths for project structure
-- [ ] Test design system integration
-- [ ] Review mobile responsiveness
+### Phase 1: Next.js Setup ✅
+- [ ] Create Next.js project
+- [ ] Install dependencies (Supabase, Tailwind plugins)
+- [ ] Convert design_config.js → tailwind.config.js
+- [ ] Migrate style.css → globals.css
+- [ ] Set up Google Fonts with next/font
 
-### Next Steps
-- [ ] Complete work page content
-- [ ] Implement form functionality
-- [ ] Decide on shop page implementation
-- [ ] Optimize for production
+### Phase 2: Supabase Setup
+- [ ] Create Supabase project
+- [ ] Design database schema (work_projects, enquiries)
+- [ ] Set up Row Level Security policies
+- [ ] Create storage bucket for images
+- [ ] Upload initial assets
+
+### Phase 3: Component Migration
+- [ ] Create shared layout and components
+- [ ] Convert index.html → app/page.tsx
+- [ ] Convert manifesto.html → app/manifesto/page.tsx
+- [ ] Convert work.html → app/work/page.tsx (with Supabase data)
+- [ ] Convert impact.html → app/impact/page.tsx
+- [ ] Convert enquire.html → app/enquire/page.tsx (with form)
+- [ ] Implement dynamic work detail pages
+
+### Phase 4: Testing & Optimization
+- [ ] Test all pages
+- [ ] Optimize images with Next.js Image
+- [ ] Test mobile responsiveness
+- [ ] Implement error handling
+- [ ] Add loading states
+
+## 📖 Documentation Highlights
+
+### Next.js Specific Guides
+- **Component Structure** - Recommended folder organization
+- **Supabase Integration** - Database schema and client setup
+- **Dynamic Routing** - Work project pages with [slug]
+- **Form Handling** - Enquiry form with Supabase
+- **Image Optimization** - Using Next.js Image component
+- **Font Loading** - next/font setup for Google Fonts
+
+See [HANDOFF.md](HANDOFF.md#nextjs-migration-guide) for complete details.
 
 ## 🚀 Future Production Deployment
 

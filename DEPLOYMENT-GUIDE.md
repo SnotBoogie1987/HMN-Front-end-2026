@@ -2,259 +2,626 @@
 
 ## 📋 Current Status: Development Integration
 
-**This codebase is being integrated into a current development project.**  
+**This codebase is being integrated into a Next.js + Supabase development project.**  
 This is NOT yet being deployed to the live human-creative.co.uk website.
 
-## 🔧 Integration into Your Development Project
+**Stack:**
+- **Next.js** - React framework
+- **Supabase** - Backend (auth, database, storage)
+- **TailwindCSS** - Styling (will be installed locally)
 
-### Step 1: Clone or Copy the Files
+## 🚀 Next.js Integration Quick Start
 
-**Option A: Clone the repository**
+### Step 1: Set Up Your Next.js Project (if not already done)
+
 ```bash
-cd /path/to/your/development/project
-git clone https://github.com/SnotBoogie1987/HMN-Front-end-2026.git frontend
+# Create new Next.js app (if starting fresh)
+npx create-next-app@latest human-creative --typescript --tailwind --app
+cd human-creative
+
+# Install Supabase
+npm install @supabase/supabase-js
+
+# Install additional dependencies
+npm install @tailwindcss/forms @tailwindcss/typography
 ```
 
-**Option B: Add as Git Submodule**
+### Step 2: Clone This Repository for Reference
+
 ```bash
-cd /path/to/your/development/project
-git submodule add https://github.com/SnotBoogie1987/HMN-Front-end-2026.git frontend
-git submodule update --init --recursive
+# Clone alongside your Next.js project
+git clone https://github.com/SnotBoogie1987/HMN-Front-end-2026.git reference-design
 ```
 
-**Option C: Copy files directly**
-```bash
-cp -r /path/to/HMN-Front-end-2026/* /path/to/your/project/frontend/
-```
+### Step 3: Migrate Design System
 
-### Step 2: Integrate Design System Files
+**Copy and convert design_config.js to tailwind.config.js:**
 
-**Preserve these files as your design source of truth:**
-- ✅ `design_config.js` - Tailwind configuration
-- ✅ `style.css` - Custom styles and animations
-
-**Integration approaches:**
-
-**If using TailwindCSS CDN (Simple):**
-```html
-<!-- Keep in all HTML files -->
-<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
-<script src="design_config.js"></script>
-<link rel="stylesheet" href="style.css">
-```
-
-**If using local TailwindCSS (Recommended for development):**
-```bash
-# Install TailwindCSS
-npm install -D tailwindcss postcss autoprefixer
-npx tailwindcss init
-
-# Convert design_config.js to tailwind.config.js
-```
-
-**tailwind.config.js:**
 ```javascript
-/** @type {import('tailwindcss').Config} */
-module.exports = {
-    darkMode: "class",
-    content: [
-        "./frontend/**/*.html",
-        "./frontend/**/*.js",
-    ],
-    theme: {
-        extend: {
-            colors: {
-                primary: "#D2F865",
-                "background-light": "#F5F5F5",
-                "background-dark": "#000000",
-                "dark-surface": "#000000",
-            },
-            fontFamily: {
-                display: ["'Anton'", "sans-serif"],
-                sans: ["'Inter'", "sans-serif"],
-                mono: ["'Space Mono'", "monospace"],
-            },
-            spacing: {
-                '128': '32rem',
-            }
+// tailwind.config.js in your Next.js project
+import type { Config } from 'tailwindcss'
+
+const config: Config = {
+  darkMode: "class",
+  content: [
+    './pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './components/**/*.{js,ts,jsx,tsx,mdx}',
+    './app/**/*.{js,ts,jsx,tsx,mdx}',
+  ],
+  theme: {
+    extend: {
+      colors: {
+        primary: "#D2F865",              // Acid Lime
+        "background-light": "#F5F5F5",
+        "background-dark": "#000000",
+        "dark-surface": "#000000",
+      },
+      fontFamily: {
+        display: ["var(--font-anton)", "sans-serif"],
+        sans: ["var(--font-inter)", "sans-serif"],
+        mono: ["var(--font-space-mono)", "monospace"],
+      },
+      spacing: {
+        '128': '32rem',
+      },
+      animation: {
+        marquee: 'marquee 64s linear infinite',
+      },
+      keyframes: {
+        marquee: {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-20%)' },
         },
+      },
     },
-    plugins: [
-        require('@tailwindcss/forms'),
-        require('@tailwindcss/typography'),
-    ],
+  },
+  plugins: [
+    require('@tailwindcss/forms'),
+    require('@tailwindcss/typography'),
+  ],
 }
+export default config
 ```
 
-### Step 3: Update File Paths
-
-Adjust paths based on your project structure:
-
-```html
-<!-- Example: If design system is in /src/styles/ -->
-<link rel="stylesheet" href="/src/styles/style.css">
-<script src="/src/config/design_config.js"></script>
-
-<!-- Update asset paths -->
-<img src="/assets/logo.png" alt="HUMAN.">
-```
-
-### Step 4: Set Up Development Server
-
-**Option A: Simple Python Server**
-```bash
-cd frontend
-python -m http.server 8000
-# Visit http://localhost:8000
-```
-
-**Option B: With Live Reload (using live-server)**
-```bash
-npm install -g live-server
-cd frontend
-live-server
-```
-
-**Option C: Integrate with your existing dev server**
-```javascript
-// Example with Express.js
-app.use('/frontend', express.static('path/to/frontend'));
-```
-
-### Step 5: Test in Development Environment
-
-- [ ] All pages load correctly
-- [ ] Design system files are referenced properly
-- [ ] Images display (or note which are placeholder paths)
-- [ ] Navigation works between pages
-- [ ] Styles apply correctly from design_config.js and style.css
-
-## 🎨 Working with the Design System
-
-**Important:** All styling changes must go through:
-- **`design_config.js`** (or `tailwind.config.js`) for Tailwind utilities
-- **`style.css`** for custom styles
-
-**DO NOT add inline styles or one-off CSS classes in HTML files.**
-
-### Making Style Changes
-
-```javascript
-// design_config.js - Change brand color
-colors: {
-    primary: "#NEW_COLOR",  // Updates throughout entire site
-}
-```
+**Merge style.css into globals.css:**
 
 ```css
-/* style.css - Modify animations */
-@keyframes marquee {
-    /* Adjust timing, distance, etc. */
+/* app/globals.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom Text Strokes from style.css */
+@layer utilities {
+  .text-stroke-lime {
+    -webkit-text-stroke: 1px #D2F865;
+    color: transparent;
+  }
+  .text-stroke-black {
+    -webkit-text-stroke: 1px #000000;
+    color: transparent;
+  }
+}
+
+/* Component Styles from style.css */
+@layer components {
+  .nav-link-style {
+    font-family: 'azeret-mono-v2', 'Azeret Mono', monospace;
+    font-size: 17.1224px;
+    line-height: 20.5469px;
+    font-weight: 400;
+  }
 }
 ```
 
-## 📝 Current Development Tasks
+### Step 4: Set Up Fonts
 
-### High Priority (Fix During Development)
+**Configure Google Fonts using next/font:**
 
-1. **Image Path Issues**
-   - Status: ⚠️ Many images use local file:/// paths
-   - Action: Replace with proper paths for your project
-   - Files affected: All HTML files
-   
-2. **Work Page Content**
-   - Status: 🚧 Placeholder content
-   - Action: Add actual project descriptions and images
-   - Files: `work/*.html`
+```typescript
+// app/layout.tsx
+import { Anton, Inter, Space_Mono } from 'next/font/google'
+import './globals.css'
 
-3. **Mobile Responsiveness**
-   - Status: ⚠️ Navigation uses fixed widths
-   - Action: Test and adjust for mobile devices
-   - Files: All HTML navigation sections
+const anton = Anton({ 
+  weight: '400',
+  subsets: ['latin'],
+  variable: '--font-anton',
+  display: 'swap',
+})
 
-### Medium Priority
+const inter = Inter({ 
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+})
 
-4. **Form Functionality**
-   - Status: 📋 Needs backend integration
-   - File: `enquire.html`
-   - Action: Integrate with your backend or use service (Formspre, etc.)
+const spaceMono = Space_Mono({ 
+  weight: ['400', '700'],
+  subsets: ['latin'],
+  variable: '--font-space-mono',
+  display: 'swap',
+})
 
-5. **Shop Page**
-   - Status: 🚧 Placeholder
-   - File: `shop.html`
-   - Action: Decide to remove or implement e-commerce
-
-### Optional Enhancements
-
-6. **Convert to Component System**
-   - Consider breaking into reusable components
-   - React, Vue, or Web Components
-   - Maintain design system as source of truth
-
-7. **Add Build Process**
-   - PostCSS for processing Tailwind
-   - Image optimization pipeline
-   - Minification for production
-
-## 🔄 Syncing with Repository Updates
-
-If you used git clone or submodule:
-
-```bash
-# Pull latest changes
-cd frontend
-git pull origin main
-
-# Or for submodule
-git submodule update --remote
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="en" className={`${anton.variable} ${inter.variable} ${spaceMono.variable}`}>
+      <body className={inter.className}>
+        {children}
+      </body>
+    </html>
+  )
+}
 ```
 
-## 🧪 Testing Checklist
+### Step 5: Create Components
 
-### Development Testing
-- [ ] All pages render correctly
-- [ ] Design system files load properly
-- [ ] Navigation between pages works
-- [ ] Fonts load from Google Fonts CDN
-- [ ] Marquee animation runs smoothly
-- [ ] Dark/light theme classes work (if implemented)
+**Recommended structure:**
+```
+app/
+├── layout.tsx                    # Root layout
+├── page.tsx                      # Homepage
+├── manifesto/
+│   └── page.tsx
+├── work/
+│   ├── page.tsx                  # Work grid
+│   └── [slug]/
+│       └── page.tsx              # Dynamic work pages
+├── impact/
+│   └── page.tsx
+├── enquire/
+│   └── page.tsx
+└── shop/
+    └── page.tsx
 
-### Browser Testing
-- [ ] Chrome/Edge (Chromium)
-- [ ] Firefox
-- [ ] Safari (if on Mac)
+components/
+├── Header.tsx
+├── Navigation.tsx
+├── Marquee.tsx
+└── work/
+    ├── WorkGrid.tsx
+    └── WorkCard.tsx
 
-### Device Testing
-- [ ] Desktop (1920x1080 and larger)
-- [ ] Laptop (1366x768)
-- [ ] Tablet (iPad: 768x1024)
-- [ ] Mobile (375x667, 414x896)
+lib/
+├── supabase.ts                   # Supabase client
+└── types.ts                      # TypeScript types
 
-## 📦 When Ready for Production
+public/
+└── assets/
+    ├── logo.png
+    └── ...
+```
 
-When your development is complete and ready for human-creative.co.uk:
+### Step 6: Set Up Supabase
 
-1. **Fix all critical issues**
-   - Image paths
-   - Mobile responsiveness
-   - Form functionality
-   - SEO meta tags
+**Create Supabase client:**
 
-2. **Optimize for production**
-   - Compress images
-   - Minify CSS/JS
-   - Add caching headers
-   - Test performance
+```typescript
+// lib/supabase.ts
+import { createClient } from '@supabase/supabase-js'
 
-3. **Follow production deployment guide**
-   - See "Future Production Deployment" section in HANDOFF.md
-   - Backup existing site
-   - Deploy to staging first
-   - Test thoroughly before going live
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+```
+
+**Create .env.local:**
+```bash
+NEXT_PUBLIC_SUPABASE_URL=your-project-url.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+```
+
+**Recommended Supabase Schema:**
+
+```sql
+-- Work Projects Table
+CREATE TABLE work_projects (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  slug TEXT UNIQUE NOT NULL,
+  title TEXT NOT NULL,
+  client TEXT NOT NULL,
+  description TEXT,
+  image_url TEXT,
+  thumbnail_url TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  published BOOLEAN DEFAULT false
+);
+
+-- Enquiries Table
+CREATE TABLE enquiries (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  company TEXT,
+  message TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  status TEXT DEFAULT 'new'
+);
+
+-- Enable Row Level Security
+ALTER TABLE work_projects ENABLE ROW LEVEL SECURITY;
+ALTER TABLE enquiries ENABLE ROW LEVEL SECURITY;
+
+-- Policies (adjust based on your needs)
+CREATE POLICY "Work projects are viewable by everyone" 
+  ON work_projects FOR SELECT 
+  USING (published = true);
+
+CREATE POLICY "Anyone can submit enquiries" 
+  ON enquiries FOR INSERT 
+  WITH CHECK (true);
+```
+
+**Set up Storage Bucket:**
+```sql
+-- In Supabase Storage, create a bucket called 'work-images'
+-- Make it public or create signed URLs
+```
+
+### Step 7: Convert Pages to Components
+
+**Example: Homepage**
+
+```tsx
+// app/page.tsx
+import Header from '@/components/Header'
+
+export default function HomePage() {
+  return (
+    <div className="bg-background-light dark:bg-background-dark font-sans antialiased text-black dark:text-gray-100 transition-colors duration-300">
+      <Header />
+      
+      <main>
+        <section className="bg-background-dark text-white py-24 px-6">
+          <div className="max-w-4xl mx-auto text-center">
+            <h1 className="font-display text-6xl md:text-8xl lg:text-9xl uppercase leading-[0.85] text-primary mb-6">
+              HUMAN CREATIVE
+            </h1>
+            {/* Convert content from index.html */}
+          </div>
+        </section>
+      </main>
+    </div>
+  )
+}
+```
+
+**Example: Navigation Component**
+
+```tsx
+// components/Navigation.tsx
+import Link from 'next/link'
+import Image from 'next/image'
+
+export default function Navigation() {
+  const links = [
+    { href: '/manifesto', label: 'MANIFESTO' },
+    { href: '/work', label: 'WORK' },
+    { href: '/enquire', label: 'ENQUIRE' },
+    { href: '/impact', label: 'IMPACT' },
+    { href: '/shop', label: 'SHOP' },
+  ]
+
+  return (
+    <nav className="bg-black text-white h-[130px] flex items-center overflow-hidden min-w-full">
+      <div className="flex items-center min-w-max pl-[75px]">
+        <Link href="/" className="block w-[271px] shrink-0 py-[20px]">
+          <Image 
+            src="/assets/logo.png" 
+            alt="HUMAN." 
+            width={271} 
+            height={90}
+            className="w-full h-auto"
+            priority
+          />
+        </Link>
+        
+        <div className="w-[129px] shrink-0"></div>
+        
+        <div className="flex items-center">
+          {links.map((link, index) => (
+            <div key={link.href} className="flex items-center">
+              <Link href={link.href} className="text-primary nav-link-style shrink-0">
+                {link.label}
+              </Link>
+              {index < links.length - 1 && <div className="w-[243px] shrink-0"></div>}
+            </div>
+          ))}
+        </div>
+      </div>
+    </nav>
+  )
+}
+```
+
+**Example: Work Grid with Supabase**
+
+```tsx
+// app/work/page.tsx
+import { supabase } from '@/lib/supabase'
+import WorkCard from '@/components/work/WorkCard'
+
+export default async function WorkPage() {
+  const { data: projects } = await supabase
+    .from('work_projects')
+    .select('*')
+    .eq('published', true)
+    .order('created_at', { ascending: false })
+
+  return (
+    <main className="bg-background-dark min-h-screen">
+      <section className="py-24">
+        <h1 className="font-display text-8xl text-primary text-center mb-12">WORK</h1>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[7px] max-w-[1120px] mx-auto">
+          {projects?.map((project) => (
+            <WorkCard key={project.id} project={project} />
+          ))}
+        </div>
+      </section>
+    </main>
+  )
+}
+```
+
+**Example: Enquire Form with Supabase**
+
+```tsx
+// app/enquire/page.tsx
+'use client'
+
+import { useState } from 'react'
+import { supabase } from '@/lib/supabase'
+
+export default function EnquirePage() {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    company: '',
+    message: '',
+  })
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setStatus('loading')
+    
+    const { error } = await supabase
+      .from('enquiries')
+      .insert([formData])
+    
+    if (error) {
+      setStatus('error')
+      console.error('Error submitting form:', error)
+    } else {
+      setStatus('success')
+      setFormData({ name: '', email: '', company: '', message: '' })
+    }
+  }
+
+  return (
+    <main className="bg-background-dark min-h-screen text-white py-24 px-6">
+      <div className="max-w-2xl mx-auto">
+        <h1 className="font-display text-8xl text-primary text-center mb-12">ENQUIRE</h1>
+        
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block mb-2 font-mono">Name</label>
+            <input
+              type="text"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              required
+              className="w-full px-4 py-2 bg-black border border-primary text-white"
+            />
+          </div>
+          
+          <div>
+            <label className="block mb-2 font-mono">Email</label>
+            <input
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              required
+              className="w-full px-4 py-2 bg-black border border-primary text-white"
+            />
+          </div>
+          
+          <div>
+            <label className="block mb-2 font-mono">Company</label>
+            <input
+              type="text"
+              value={formData.company}
+              onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+              className="w-full px-4 py-2 bg-black border border-primary text-white"
+            />
+          </div>
+          
+          <div>
+            <label className="block mb-2 font-mono">Message</label>
+            <textarea
+              value={formData.message}
+              onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+              required
+              rows={6}
+              className="w-full px-4 py-2 bg-black border border-primary text-white"
+            />
+          </div>
+          
+          <button
+            type="submit"
+            disabled={status === 'loading'}
+            className="w-full bg-primary text-black px-6 py-3 font-mono hover:opacity-90 transition-opacity"
+          >
+            {status === 'loading' ? 'Sending...' : 'Send Enquiry'}
+          </button>
+          
+          {status === 'success' && (
+            <p className="text-primary text-center">Thank you! We'll be in touch soon.</p>
+          )}
+          {status === 'error' && (
+            <p className="text-red-500 text-center">Error sending message. Please try again.</p>
+          )}
+        </form>
+      </div>
+    </main>
+  )
+}
+```
+
+## 🎨 Design System Integration
+
+**Remember:** All styling must come from:
+- `tailwind.config.js` (converted from design_config.js)
+- `globals.css` (converted from style.css)
+
+**Never add inline styles or one-off CSS in components.**
+
+## 📝 Migration Checklist
+
+### Setup
+- [ ] Create or clone Next.js project
+- [ ] Install dependencies (Supabase, Tailwind plugins)
+- [ ] Set up environment variables
+- [ ] Configure tailwind.config.js from design_config.js
+- [ ] Migrate style.css to globals.css
+- [ ] Set up Google Fonts with next/font
+
+### Supabase Setup
+- [ ] Create Supabase project
+- [ ] Create work_projects table
+- [ ] Create enquiries table
+- [ ] Set up RLS policies
+- [ ] Create storage bucket for images
+- [ ] Upload test images
+
+### Component Migration
+- [ ] Create shared layout
+- [ ] Build Header component
+- [ ] Build Navigation component
+- [ ] Build Marquee component
+- [ ] Convert homepage (index.html → app/page.tsx)
+- [ ] Convert manifesto page
+- [ ] Convert work grid page
+- [ ] Convert impact page
+- [ ] Convert enquire page with form
+- [ ] Create dynamic work detail pages
+
+### Assets & Data
+- [ ] Move images to public/assets or Supabase Storage
+- [ ] Populate work_projects table with data
+- [ ] Update all image references to use Next.js Image
+- [ ] Test image optimization
+
+### Testing
+- [ ] Test all pages in development (npm run dev)
+- [ ] Test navigation between pages
+- [ ] Test form submission
+- [ ] Test work project pages
+- [ ] Test on mobile viewport
+- [ ] Test dark/light theme (if implemented)
+
+## 🔧 Development Workflow
+
+```bash
+# Run development server
+npm run dev
+
+# Open in browser
+# http://localhost:3000
+
+# Build for production (when ready)
+npm run build
+
+# Test production build locally
+npm run start
+```
+
+## 📊 Supabase Data Management
+
+**Populate work projects:**
+
+```javascript
+// scripts/seed-projects.js
+import { createClient } from '@supabase/supabase-js'
+
+const projects = [
+  { slug: 'astonmartin', title: 'Aston Martin', client: 'Aston Martin', published: true },
+  { slug: 'underarmour', title: 'Under Armour', client: 'Under Armour', published: true },
+  // ... add all 12 projects
+]
+
+const supabase = createClient(url, key)
+
+for (const project of projects) {
+  await supabase.from('work_projects').insert([project])
+}
+```
+
+## 🚧 Current Development Tasks
+
+### High Priority
+- [ ] Complete Next.js setup
+- [ ] Migrate all pages to components
+- [ ] Set up Supabase database
+- [ ] Implement enquiry form
+- [ ] Add work project data
+
+### Medium Priority
+- [ ] Optimize mobile responsiveness
+- [ ] Add loading states
+- [ ] Implement error handling
+- [ ] Add animations
+
+### Future
+- [ ] Shop functionality (if needed)
+- [ ] Authentication (for member accounts)
+- [ ] Admin panel for content management
+- [ ] Analytics integration
+
+---
 
 ## 🚀 Future: Production Deployment to human-creative.co.uk
 
 **⚠️ The following is for FUTURE production deployment only ⚠️**
+
+### Vercel Deployment (Recommended for Next.js)
+
+```bash
+# Install Vercel CLI
+npm i -g vercel
+
+# Deploy
+vercel
+
+# Or connect to GitHub and deploy automatically
+```
+
+### Environment Variables in Production
+
+Add to Vercel/production:
+```
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+```
+
+---
+
+## Reference: Static HTML to Next.js Conversion
+
+For detailed conversion examples, see the [Next.js Migration Guide](#nextjs-migration-guide) in HANDOFF.md.
+
+---
+
+# OLD STATIC DEPLOYMENT GUIDE (For Reference Only)
+
+**The following sections are for the old static HTML site and are kept for reference.**
 
 ---
 

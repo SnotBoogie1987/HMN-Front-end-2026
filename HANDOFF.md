@@ -6,7 +6,8 @@
 
 **Target Domain**: human-creative.co.uk  
 **Current Status**: Development/Integration Phase  
-**Purpose**: These front-end pages are being integrated into a current development project. This is NOT yet being deployed to the live production website.
+**Development Stack**: Next.js + Supabase  
+**Purpose**: These static HTML pages are being integrated into a Next.js application with Supabase backend. This is NOT yet being deployed to the live production website.
 
 ### Company Mission
 - Provide curated crew solutions with exceptional talent
@@ -25,11 +26,17 @@
 
 ## Technical Stack
 
-### Core Technologies
+### Current Static Implementation
 - **HTML5** - Semantic markup structure
 - **TailwindCSS** - Utility-first CSS framework (via CDN)
 - **Vanilla JavaScript** - Minimal JavaScript for configuration
 - **Node.js** - For build scripts (work page generation)
+
+### Target Development Stack
+- **Next.js** - React framework for production
+- **Supabase** - Backend as a Service (authentication, database, storage)
+- **TailwindCSS** - Utility-first CSS framework (will be installed locally)
+- **React** - Component-based UI (via Next.js)
 
 ### Design System (IMPORTANT)
 
@@ -512,53 +519,522 @@ When integrating these pages into your development project:
    - Install font packages if needed
    - Consider adding build tools (PostCSS, etc.)
 
-### Development Workflow
+### Integration into Existing Project
 
+**For Next.js + Supabase Integration:**
+
+This repository contains static HTML pages that need to be converted to Next.js components. See the detailed [Next.js Migration Guide](#nextjs-migration-guide) below.
+
+When integrating these pages into your Next.js + Supabase project:
+
+1. **Preserve the Design System**
+   - Migrate `design_config.js` to `tailwind.config.js`
+   - Integrate `style.css` into your Next.js global styles
+   - Maintain design tokens for consistency
+
+2. **Convert HTML to React/Next.js Components**
+   - Break pages into reusable components
+   - Use Next.js App Router or Pages Router
+   - Implement layouts for shared elements (header, footer, nav)
+
+3. **Integrate Supabase**
+   - Use for image storage (replace local file paths)
+   - Implement authentication if needed
+   - Store work portfolio data in Supabase database
+   - Use for form submissions (enquire page)
+
+4. **Update Asset Management**
+   - Move images to Next.js `public/` directory or Supabase Storage
+   - Use Next.js `<Image>` component for optimization
+   - Update all asset paths
+
+---
+
+## Next.js Migration Guide
+
+### Prerequisites
+
+Your Next.js project should have:
 ```bash
-# Clone into your development project
-git clone https://github.com/SnotBoogie1987/HMN-Front-end-2026.git
-
-# Or add as submodule
-git submodule add https://github.com/SnotBoogie1987/HMN-Front-end-2026.git frontend
-
-# Copy files to your project structure
-cp -r HMN-Front-end-2026/* your-project/frontend/
+npm install next react react-dom
+npm install -D tailwindcss postcss autoprefixer
+npm install @supabase/supabase-js
 ```
 
-### Integrating with Modern Build Tools
+### Step 1: Set Up TailwindCSS in Next.js
 
-If your development project uses a build system:
-
-#### With Vite
-```javascript
-// vite.config.js
-import { defineConfig } from 'vite'
-
-export default defineConfig({
-  root: './frontend',
-  publicDir: 'assets',
-})
+**Install TailwindCSS:**
+```bash
+npx tailwindcss init -p
 ```
 
-#### With Webpack
+**Convert `design_config.js` to `tailwind.config.js`:**
+
 ```javascript
-// webpack.config.js
+// tailwind.config.js
+/** @type {import('tailwindcss').Config} */
 module.exports = {
-  entry: './frontend/index.html',
-  output: {
-    path: path.resolve(__dirname, 'dist'),
+  darkMode: "class",
+  content: [
+    './pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './components/**/*.{js,ts,jsx,tsx,mdx}',
+    './app/**/*.{js,ts,jsx,tsx,mdx}',
+  ],
+  theme: {
+    extend: {
+      colors: {
+        primary: "#D2F865",              // Acid Lime
+        "background-light": "#F5F5F5",
+        "background-dark": "#000000",
+        "dark-surface": "#000000",
+      },
+      fontFamily: {
+        display: ["'Anton'", "sans-serif"],
+        sans: ["'Inter'", "sans-serif"],
+        mono: ["'Space Mono'", "monospace"],
+      },
+      spacing: {
+        '128': '32rem',
+      },
+      animation: {
+        marquee: 'marquee 64s linear infinite',
+      },
+      keyframes: {
+        marquee: {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-20%)' },
+        },
+      },
+    },
   },
+  plugins: [
+    require('@tailwindcss/forms'),
+    require('@tailwindcss/typography'),
+  ],
 }
 ```
 
-#### Installing TailwindCSS Locally (Recommended for Development)
-```bash
-npm install -D tailwindcss
-npx tailwindcss init
+**Migrate `style.css` to global styles:**
 
-# Create tailwind.config.js from design_config.js content
-# Replace CDN script in HTML with compiled CSS
+```css
+/* app/globals.css or styles/globals.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom Text Strokes */
+@layer utilities {
+  .text-stroke-lime {
+    -webkit-text-stroke: 1px #D2F865;
+    color: transparent;
+  }
+  .text-stroke-black {
+    -webkit-text-stroke: 1px #000000;
+    color: transparent;
+  }
+}
+
+/* Component Styles */
+@layer components {
+  .nav-link-style {
+    font-family: 'azeret-mono-v2', 'Azeret Mono', monospace;
+    font-size: 17.1224px;
+    line-height: 20.5469px;
+    vertical-align: baseline;
+    letter-spacing: normal;
+    word-spacing: 0px;
+    margin: 0px;
+    padding: 0px;
+    font-weight: 400;
+    font-style: normal;
+  }
+}
 ```
+
+### Step 2: Set Up Google Fonts in Next.js
+
+**Using next/font (recommended):**
+
+```javascript
+// app/layout.js or pages/_app.js
+import { Anton, Inter, Space_Mono } from 'next/font/google'
+
+const anton = Anton({ 
+  weight: '400',
+  subsets: ['latin'],
+  variable: '--font-anton',
+})
+
+const inter = Inter({ 
+  subsets: ['latin'],
+  variable: '--font-inter',
+})
+
+const spaceMono = Space_Mono({ 
+  weight: ['400', '700'],
+  subsets: ['latin'],
+  variable: '--font-space-mono',
+})
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en" className={`${anton.variable} ${inter.variable} ${spaceMono.variable}`}>
+      <body className={inter.className}>{children}</body>
+    </html>
+  )
+}
+```
+
+**Update tailwind.config.js:**
+```javascript
+fontFamily: {
+  display: ["var(--font-anton)", "sans-serif"],
+  sans: ["var(--font-inter)", "sans-serif"],
+  mono: ["var(--font-space-mono)", "monospace"],
+},
+```
+
+### Step 3: Create Component Structure
+
+**Recommended folder structure:**
+
+```
+your-nextjs-project/
+├── app/                          # Next.js 13+ App Router
+│   ├── layout.js                 # Root layout
+│   ├── page.js                   # Homepage (from index.html)
+│   ├── manifesto/
+│   │   └── page.js               # Manifesto page
+│   ├── work/
+│   │   ├── page.js               # Work grid
+│   │   └── [slug]/
+│   │       └── page.js           # Individual work pages
+│   ├── impact/
+│   │   └── page.js               # Impact page
+│   ├── enquire/
+│   │   └── page.js               # Enquire page
+│   └── shop/
+│       └── page.js               # Shop page
+├── components/
+│   ├── Header.js                 # Shared header
+│   ├── Navigation.js             # Main nav
+│   ├── Marquee.js                # Partner marquee
+│   ├── Footer.js                 # Shared footer
+│   └── work/
+│       ├── WorkGrid.js
+│       └── WorkCard.js
+├── lib/
+│   └── supabase.js               # Supabase client
+├── public/
+│   └── assets/                   # Images
+└── styles/
+    └── globals.css               # Global styles
+```
+
+### Step 4: Convert HTML Pages to React Components
+
+**Example: Homepage (app/page.js)**
+
+```jsx
+// app/page.js
+import Header from '@/components/Header'
+import Marquee from '@/components/Marquee'
+
+export default function HomePage() {
+  return (
+    <div className="bg-background-light dark:bg-background-dark font-sans antialiased text-black dark:text-gray-100 transition-colors duration-300">
+      <Header />
+      
+      <main>
+        {/* Port content from index.html here */}
+        <section className="bg-background-dark text-white py-24 px-6">
+          <div className="max-w-4xl mx-auto text-center">
+            <h1 className="font-display text-6xl md:text-8xl lg:text-9xl uppercase leading-[0.85] text-primary mb-6">
+              HUMAN CREATIVE
+            </h1>
+            {/* ... rest of content ... */}
+          </div>
+        </section>
+      </main>
+    </div>
+  )
+}
+```
+
+**Example: Shared Header Component**
+
+```jsx
+// components/Header.js
+import Link from 'next/link'
+import Image from 'next/image'
+import Marquee from './Marquee'
+import Navigation from './Navigation'
+
+export default function Header() {
+  return (
+    <header className="w-full">
+      <Marquee />
+      <Navigation />
+    </header>
+  )
+}
+```
+
+**Example: Marquee Component**
+
+```jsx
+// components/Marquee.js
+export default function Marquee() {
+  const text = "WITH THANKS TO: MUSICBED | PELI PRODUCTS | BETTERHELP | CALMZONE | THE GYM GROUP | POLICYBEE | MEDIA TRAVELS | MICHAEL B. BENNETT ACCOUNTING | FLYKITT | ATOMOS | WEX PHOTO VIDEO |"
+  
+  return (
+    <section className="bg-primary text-black pt-[50px] pb-[25px] overflow-hidden whitespace-nowrap border-b border-black block">
+      <div className="flex animate-marquee w-max">
+        {[...Array(5)].map((_, i) => (
+          <span key={i} className="mx-4 font-mono text-sm" aria-hidden="true">
+            {text}
+          </span>
+        ))}
+      </div>
+    </section>
+  )
+}
+```
+
+**Example: Navigation Component**
+
+```jsx
+// components/Navigation.js
+import Link from 'next/link'
+import Image from 'next/image'
+
+export default function Navigation() {
+  const links = [
+    { href: '/manifesto', label: 'MANIFESTO' },
+    { href: '/work', label: 'WORK' },
+    { href: '/enquire', label: 'ENQUIRE' },
+    { href: '/impact', label: 'IMPACT' },
+    { href: '/shop', label: 'SHOP' },
+  ]
+
+  return (
+    <nav className="bg-black text-white h-[130px] flex items-center overflow-hidden min-w-full">
+      <div className="flex items-center min-w-max pl-[75px]">
+        {/* Logo */}
+        <Link href="/" className="block w-[271px] shrink-0 py-[20px]">
+          <Image 
+            src="/assets/logo.png" 
+            alt="HUMAN." 
+            width={271} 
+            height={90}
+            className="w-full h-auto"
+            priority
+          />
+        </Link>
+
+        <div className="w-[129px] shrink-0"></div>
+
+        {/* Main Links */}
+        <div className="flex items-center">
+          {links.map((link, index) => (
+            <div key={link.href} className="flex items-center">
+              <Link href={link.href} className="text-primary nav-link-style shrink-0">
+                {link.label}
+              </Link>
+              {index < links.length - 1 && <div className="w-[243px] shrink-0"></div>}
+            </div>
+          ))}
+        </div>
+
+        <div className="w-[264px] shrink-0"></div>
+        <Link href="#" className="text-white nav-link-style shrink-0">ACCOUNT</Link>
+        <div className="w-[100px] shrink-0"></div>
+      </div>
+    </nav>
+  )
+}
+```
+
+### Step 5: Integrate Supabase
+
+**Set up Supabase client:**
+
+```javascript
+// lib/supabase.js
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+```
+
+**Environment variables (.env.local):**
+```bash
+NEXT_PUBLIC_SUPABASE_URL=your-project-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+```
+
+**Use Cases for Supabase:**
+
+1. **Image Storage** - Store work portfolio images, logos, etc.
+```javascript
+// Upload image to Supabase Storage
+const { data, error } = await supabase.storage
+  .from('work-images')
+  .upload('project-name.jpg', file)
+
+// Get public URL
+const { data: { publicUrl } } = supabase.storage
+  .from('work-images')
+  .getPublicUrl('project-name.jpg')
+```
+
+2. **Work Portfolio Database**
+```javascript
+// Create table in Supabase:
+// work_projects (id, title, slug, description, client, image_url, created_at)
+
+// Fetch work projects
+const { data: projects } = await supabase
+  .from('work_projects')
+  .select('*')
+  .order('created_at', { ascending: false })
+```
+
+3. **Contact Form Submissions**
+```javascript
+// app/enquire/page.js
+'use client'
+import { useState } from 'react'
+import { supabase } from '@/lib/supabase'
+
+export default function EnquirePage() {
+  const [formData, setFormData] = useState({})
+  
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    
+    const { data, error } = await supabase
+      .from('enquiries')
+      .insert([formData])
+    
+    if (!error) {
+      // Show success message
+    }
+  }
+  
+  return (
+    <form onSubmit={handleSubmit}>
+      {/* Form fields */}
+    </form>
+  )
+}
+```
+
+4. **Authentication (if needed)**
+```javascript
+// For member login/account functionality
+const { data, error } = await supabase.auth.signInWithPassword({
+  email: 'user@example.com',
+  password: 'password',
+})
+```
+
+### Step 6: Dynamic Work Pages
+
+**Create dynamic route for work projects:**
+
+```jsx
+// app/work/[slug]/page.js
+import { supabase } from '@/lib/supabase'
+import Image from 'next/image'
+import { notFound } from 'next/navigation'
+
+export async function generateStaticParams() {
+  const { data: projects } = await supabase
+    .from('work_projects')
+    .select('slug')
+  
+  return projects.map((project) => ({
+    slug: project.slug,
+  }))
+}
+
+export default async function WorkDetailPage({ params }) {
+  const { data: project } = await supabase
+    .from('work_projects')
+    .select('*')
+    .eq('slug', params.slug)
+    .single()
+  
+  if (!project) {
+    notFound()
+  }
+  
+  return (
+    <main className="bg-background-dark min-h-screen text-white flex flex-col justify-center items-center">
+      <h1 className="font-display text-8xl text-primary uppercase text-center max-w-4xl">
+        {project.title}
+      </h1>
+      <p className="font-mono text-xl mt-4">{project.description}</p>
+      {project.image_url && (
+        <Image 
+          src={project.image_url} 
+          alt={project.title}
+          width={1200}
+          height={675}
+          className="mt-8"
+        />
+      )}
+    </main>
+  )
+}
+```
+
+### Step 7: Optimize Images with Next.js
+
+**Replace `<img>` with Next.js `<Image>`:**
+
+```jsx
+// Before (HTML)
+<img src="assets/logo.png" alt="HUMAN." class="w-full h-auto">
+
+// After (Next.js)
+<Image 
+  src="/assets/logo.png" 
+  alt="HUMAN." 
+  width={271} 
+  height={90}
+  className="w-full h-auto"
+  priority  // For above-the-fold images
+/>
+```
+
+### Step 8: Migration Checklist
+
+- [ ] Install TailwindCSS and plugins in Next.js
+- [ ] Convert design_config.js to tailwind.config.js
+- [ ] Migrate style.css to globals.css
+- [ ] Set up Google Fonts with next/font
+- [ ] Create component structure
+- [ ] Convert index.html to app/page.js
+- [ ] Convert manifesto.html to app/manifesto/page.js
+- [ ] Convert work.html to app/work/page.js
+- [ ] Convert impact.html to app/impact/page.js
+- [ ] Convert enquire.html to app/enquire/page.js
+- [ ] Create shared components (Header, Navigation, Marquee)
+- [ ] Set up Supabase client
+- [ ] Create Supabase tables for work projects
+- [ ] Upload images to Supabase Storage or Next.js public/
+- [ ] Implement dynamic work project pages
+- [ ] Convert all img tags to Next.js Image components
+- [ ] Test all pages in development
+- [ ] Implement form handling with Supabase
+
+---
+
+### Development Workflow (Old Static Site)
 
 ### Future Production Deployment
 
